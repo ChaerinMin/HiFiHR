@@ -4,5 +4,5 @@ doc/
 outputs/
 runs/
 
-hand_models/
+hand_models/smplx/models/smplx/
 utils/NIMBLE_model/assets/

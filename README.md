@@ -16,6 +16,7 @@
 </p>
 </div>
 
+This repository is a manual `Fork` from [viridityzhu/HifiHR](https://github.com/viridityzhu/HiFiHR/tree/main)
 ---
 
 ## 📒 Table of Contents

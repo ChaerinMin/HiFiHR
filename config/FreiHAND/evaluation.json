@@ -23,7 +23,7 @@
     "use_mean_shape": false,
 
     "pretrain": "effb3",
-    "pretrain_model": "outputs/pretrain_models/full_freihand.t7",
+    "pretrain_model": "/dev/hdd/GenHeld/assets/hifihr/full_freihand.t7",
     "val_queries": ["images", "Ks", "joints", "scales", "verts", "masks"],
     "train_requires": ["heatmaps", "joints","verts","textures","lights"],
     "test_requires": ["heatmaps", "joints","verts","textures","lights"]
