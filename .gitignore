@@ -1,0 +1,8 @@
+__pycache__/
+.vscode/
+doc/
+outputs/
+runs/
+
+hand_models/
+utils/NIMBLE_model/assets/

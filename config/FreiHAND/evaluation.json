@@ -1,0 +1,30 @@
+{
+    "mode_0": ["evaluation"],
+    "mode": ["evaluation"],
+    "task": "train",
+    "freihand_base_path": "../FreiHAND",
+    "base_out_path": "outputs/freihand/evaluation",
+    "is_write_tb": false,
+    "writer_topic": "runs/evaluation/",
+    "val_batch": 1,
+    "num_workers":1,
+    "demo_freq_evaluation":1,
+    "img_wise_save":false,
+    "test_refinement":false,
+    "init_lr": 0,
+    "demo_freq":1,
+
+    "new_model": true,
+    "render": true,
+    "light_estimation": true,
+    "four_channel": false,
+    "hand_model": "nimble",
+    "base_loss_fn": "L1",
+    "use_mean_shape": false,
+
+    "pretrain": "effb3",
+    "pretrain_model": "outputs/pretrain_models/full_freihand.t7",
+    "val_queries": ["images", "Ks", "joints", "scales", "verts", "masks"],
+    "train_requires": ["heatmaps", "joints","verts","textures","lights"],
+    "test_requires": ["heatmaps", "joints","verts","textures","lights"]
+}
