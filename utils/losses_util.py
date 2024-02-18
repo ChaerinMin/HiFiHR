@@ -44,7 +44,7 @@ class VGGPerceptualLoss(torch.nn.Module):
             loss += torch.nn.functional.l1_loss(x, y)
         return loss
 
-from network.efficientnet_pt.model import EfficientNet
+from ..network.efficientnet_pt.model import EfficientNet
 class EffiPerceptualLoss(nn.Module):
     def __init__(self, pretrained_model = None, resize=True):
         super(EffiPerceptualLoss, self).__init__()

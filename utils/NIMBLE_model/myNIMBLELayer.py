@@ -7,8 +7,8 @@ import os
 import numpy as np
 import torch
 import trimesh
-from utils.NIMBLE_model.utils import batch_to_tensor_device, smooth_mesh
-from utils.NIMBLE_model.utils import *
+from .utils import batch_to_tensor_device, smooth_mesh
+from .utils import *
 from pytorch3d.structures.meshes import Meshes
 from pytorch3d.renderer import Textures
 from torch.autograd import Variable
@@ -18,7 +18,7 @@ class MyNIMBLELayer(torch.nn.Module):
     __constants__ = [
         'use_pose_pca', 'shape_ncomp', 'pose_ncomp', 'pm_dict'
     ]
-    def __init__(self, ifRender, device, use_mean_shape=False, shape_ncomp=20, pose_ncomp=30, tex_ncomp=10, pm_dict_name="utils/NIMBLE_model/assets/NIMBLE_DICT_9137.pkl", tex_dict_name="utils/NIMBLE_model/assets/NIMBLE_TEX_DICT.pkl", nimble_mano_vreg_name="utils/NIMBLE_model/assets/NIMBLE_MANO_VREG.pkl", use_pose_pca=True):
+    def __init__(self, ifRender, device, use_mean_shape=False, shape_ncomp=20, pose_ncomp=30, tex_ncomp=10, pm_dict_name="assets/nimble/NIMBLE_DICT_9137.pkl", tex_dict_name="assets/nimble/NIMBLE_TEX_DICT.pkl", nimble_mano_vreg_name="assets/nimble/NIMBLE_MANO_VREG.pkl", use_pose_pca=True):
         super(MyNIMBLELayer, self).__init__()
         self.device = device
         self.ifRender = ifRender
@@ -38,7 +38,7 @@ class MyNIMBLELayer(torch.nn.Module):
         else:
             nimble_mano_vreg=None
         
-        uvs_name = 'utils/NIMBLE_model/assets/faces_uvs.pt'
+        uvs_name = 'assets/nimble/faces_uvs.pt'
         if os.path.exists(uvs_name):
             self.register_buffer("faces_uv", torch.load(uvs_name))
             self.register_buffer("verts_uv", torch.load(uvs_name.replace('faces', 'verts')))
@@ -211,7 +211,7 @@ class MyNIMBLELayer(torch.nn.Module):
     def mano_v2j_reg(self, mano_verts):#[b,778,3]
 
         batch_size = mano_verts.shape[0]
-        MANO_file = 'data/MANO_RIGHT.pkl'
+        MANO_file = 'assets/mano/MANO_RIGHT.pkl'
         dd = pickle.load(open(MANO_file, 'rb'),encoding='latin1')
         J_regressor = Variable(torch.from_numpy(np.expand_dims(dd['J_regressor'].todense(), 0).astype(np.float32)).to(device=mano_verts.device))
         
@@ -272,23 +272,23 @@ class MyNIMBLELayer(torch.nn.Module):
         
         skin_v = mesh_v[:, self.skin_v_sep:, :]
 
-        if self.ifRender:
-            # tex_img = self.generate_texture(hand_params['texture_params'], need=False)
-            tex_img = self.generate_texture(hand_params['texture_params'])
-            # create the texture object
-            # texture = TexturesUV(
-            #     maps=tex_img.permute(0, 3, 1, 2),  # Bx(3+3+3)xHxW
-            # )
-            tex_img_rgb = tex_img[:,:,:, :3].flip(dims=(3,))
-            texture = Textures(
-                maps=tex_img_rgb,  # BxHxWxC(3)
-                verts_uvs=self.verts_uv.repeat(batch_size, 1, 1), 
-                faces_uvs=self.faces_uv.repeat(batch_size, 1, 1), 
-            )
-        else:
-            # not generate texture
-            tex_img = self.generate_texture(hand_params['texture_params'], need=False)
-            texture = None
+        # if self.ifRender:
+        # tex_img = self.generate_texture(hand_params['texture_params'], need=False)
+        tex_img = self.generate_texture(hand_params['texture_params'])
+        # create the texture object
+        # texture = TexturesUV(
+        #     maps=tex_img.permute(0, 3, 1, 2),  # Bx(3+3+3)xHxW
+        # )
+        tex_img_rgb = tex_img[:,:,:, :3].flip(dims=(3,))
+        texture = Textures(
+            maps=tex_img_rgb,  # BxHxWxC(3)
+            verts_uvs=self.verts_uv.repeat(batch_size, 1, 1), 
+            faces_uvs=self.faces_uv.repeat(batch_size, 1, 1), 
+        )
+        # else:
+        #     # not generate texture
+        #     tex_img = self.generate_texture(hand_params['texture_params'], need=False)
+        #     texture = None
 
         if handle_collision: # this is time-consuming
             skin_v = self.handle_collision(mesh_v)

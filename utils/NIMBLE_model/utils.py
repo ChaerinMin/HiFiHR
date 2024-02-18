@@ -10,6 +10,7 @@ from pathlib import Path
 from pytorch3d.structures.meshes import Meshes
 import pytorch3d.ops
 from rich import print
+import os 
 
 ROOT_JOINT_IDX = 0  # wrist
 DOF2_BONES = [1, 2, 4, 5, 8, 9, 12, 13, 16, 17]
@@ -371,6 +372,51 @@ def save_textured_nimble(fname, skin_v, tex_img=None, console=None):
         print(f"save obj to {fname} ")
 
 
+def save_hifihr_mesh(fname, xyz_name, nimble_tex_fuv, skin_v, tex_img, xyz):
+    ### batch_size = 1
+    import cv2
+    # fname = Path(fname)
+
+    # obj_name_skin = fname.parent / (fname.stem + "_skin.obj")
+    # obj_name_skin = Path(fname)
+    obj_dir = os.path.dirname(fname)
+    if not os.path.exists(obj_dir):
+        os.makedirs(obj_dir)
+    xyz_dir = os.path.dirname(xyz_name)
+    if not os.path.exists(xyz_dir):
+        os.makedirs(xyz_dir)
+
+    mtl_name = Path(fname.replace(".obj", ".mtl"))
+
+    if tex_img is not None:
+        # texture image
+        tex_name_diffuse = Path(fname.replace(".obj", "_diffuse.png"))
+        tex_name_normal = Path(fname.replace(".obj", "_normal.png"))
+        tex_name_spec = Path(fname.replace(".obj", "_spec.png"))
+        tex_img = np.uint8(tex_img * 255)
+
+        try:    
+            cv2.imwrite(str(tex_name_diffuse), tex_img[..., :3])
+            cv2.imwrite(str(tex_name_normal), tex_img[..., 3:6])
+            cv2.imwrite(str(tex_name_spec), tex_img[..., 6:])
+        except:
+            raise ValueError("Error in saving texture images")
+
+        # mtl
+        mtl_str = "newmtl material_0\nKa 0.200000 0.200000 0.200000\nKd 0.800000 0.800000 0.800000\nKs 1.000000 1.000000 1.000000\nTr 1.000000\nillum 2\nNs 0.000000\nmap_Kd "
+        mtl_str = mtl_str + tex_name_diffuse.name + "\nmap_Ks " + tex_name_spec.name + "\nmap_bump " + tex_name_normal.name
+        with open(mtl_name, "w") as f:
+            f.writelines(mtl_str)
+
+    # obj
+    f_uv = np.load(nimble_tex_fuv, allow_pickle=True)
+    with open(fname, "w") as f:
+        f.write("mtllib {:s}\n".format(mtl_name.name))    
+        for v in skin_v:
+            f.writelines("v {:.5f} {:.5f} {:.5f}\n".format(v[0], v[1], v[2]))
+        f.writelines(f_uv)
+
+    np.save(xyz_name, xyz)
 
 
 def smooth_mesh(mesh_p3d):

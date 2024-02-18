@@ -60,8 +60,8 @@ def rot_pose_beta_to_mesh(rots, poses, betas):
     '''
         Using MANO, convert the provided rotation, theta (pose), and beta (shape) into mesh joints, verts, faces, and poses.
     '''
-    #dd = pickle.load(open('examples/data/MANO_RIGHT.pkl', 'rb'),encoding='latin1')
-    MANO_file = os.path.join(os.path.dirname(os.path.dirname(__file__)),'data/MANO_RIGHT.pkl')
+    #dd = pickle.load(open('examples/aseets/mano/MANO_RIGHT.pkl', 'rb'),encoding='latin1')
+    MANO_file = os.path.join(os.path.dirname(os.path.dirname(__file__)),'aseets/mano/MANO_RIGHT.pkl')
     dd = pickle.load(open(MANO_file, 'rb'),encoding='latin1')
     kintree_table = dd['kintree_table']
     id_to_col = {kintree_table[1,i] : i for i in range(kintree_table.shape[1])} 

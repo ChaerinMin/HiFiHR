@@ -12,8 +12,8 @@ from pytorch3d.io import IO
 import numpy as np
 import os
 
-from utils.fh_utils import *
-from utils.NIMBLE_model.utils import save_textured_nimble
+from .fh_utils import *
+from .NIMBLE_model.utils import save_textured_nimble
 
 def displaydemo(mode_train, obj_output, image_output, epoch, idx, vertices, faces, imgs, j2d_gt, open_2dj, j2d, hm_j2d, nimble_j2d, masks, maskRGBs, render_images,joints,joints_gt, nimble_joints, skin_meshes=None, textures=None, re_sil=None, re_img=None, re_depth=None, gt_depth=None,pc_gt_depth=None, pc_re_depth=None, obj_uv6 = None, opt_j2d = None, opt_img=None, dataset_name = 'FreiHand', writer=None, writer_tag='not-sure', console=None, img_wise_save=False, refhand=None, warphand=None, Ks=None, light_params=None, full_pose=None):
     evalName = '_eval' if not mode_train else ''

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from network.efficientnet_pt.model import EfficientNet
+from .efficientnet_pt.model import EfficientNet
 
 class EffiEncoder(nn.Module):
     def __init__(self, pretrain='effb3'):

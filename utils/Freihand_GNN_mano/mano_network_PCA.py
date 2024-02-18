@@ -2,8 +2,8 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 # from torch_scatter import scatter_add
-from utils.Freihand_GNN_mano.network.resnet import resnet18, resnet50
-from utils.Freihand_GNN_mano.utils import utils, mesh_sampling 
+from ..Freihand_GNN_mano.network.resnet import resnet18, resnet50
+from ..Freihand_GNN_mano.utils import utils, mesh_sampling 
 import os.path as osp 
 import pickle
 # add some path into the system path 
@@ -11,7 +11,7 @@ import os
 import sys
 fdir = os.path.split(os.path.abspath(__file__))[0]
 sys.path.append(fdir)
-from manopth.manolayer import ManoLayer
+from .manopth.manolayer import ManoLayer
 MANO_dir = os.path.join(fdir,'mano')
 
 def Pool(x, trans, dim=1):

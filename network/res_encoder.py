@@ -144,12 +144,13 @@ class HandEncoder(nn.Module):
             rot = None
 
         # decide texture params
-        if self.ifRender and self.hand_model == 'nimble':
+        if self.hand_model == 'nimble':
             texture_params = self.tex_reg(base_features)#shape
-        elif self.hand_model == 'nimble':
-            texture_params = torch.zeros(bs, self.tex_ncomp).to(device)
+        # elif self.hand_model == 'nimble':
+        #     texture_params = torch.zeros(bs, self.tex_ncomp).to(device)
         else:
             texture_params = None
+            raise NotImplementedError
             
         # decide shape params
         if self.use_mean_shape:

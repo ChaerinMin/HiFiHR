@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import json
 import os
-import utils.visualize_util as visualize_util
+import submodules.HiFiHR.utils.visualize_util as visualize_util
 import time
 # from tensorboardX import SummaryWriter
 from datetime import datetime
@@ -111,6 +111,82 @@ def load_model(model,optimizer,scheduler,args):
         print('loading the rgb2hm model from:', args.pretrain_rgb2hm)
     #import pdb; pdb.set_trace()
     return model, current_epoch, optimizer, scheduler
+
+
+def load_hifihr(device, model, pretrain_path):
+    state_dict = torch.load(pretrain_path, map_location=device)
+    #import pdb; pdb.set_trace()
+    # dir(model)
+    if 'encoder' in state_dict.keys() and hasattr(model,'encoder'):
+        model.encoder.load_state_dict(state_dict['encoder'])
+        print('load encoder')
+    elif 'base_encoder' in state_dict.keys() and hasattr(model,'base_encoder'):
+        model.base_encoder.load_state_dict(state_dict['base_encoder'])
+        print('load base encoder')
+    if 'ytbHand' in state_dict.keys() and hasattr(model,'ytbHand'):
+        model.ytbHand.load_state_dict(state_dict['ytbHand'])
+        print('load ytbHand')
+    if 'renderer_p3d'in state_dict.keys() and hasattr(model,'renderer_p3d'):
+        model.renderer_p3d.load_state_dict(state_dict['renderer_p3d'])
+        print('load renderer_p3d')
+    
+    if 'decoder' in state_dict.keys() and hasattr(model,'hand_decoder'):
+        model.hand_decoder.load_state_dict(state_dict['decoder'])
+        print('load hand_decoder')
+    elif 'hand_encoder' in state_dict.keys() and hasattr(model,'hand_encoder'):
+        model.hand_encoder.load_state_dict(state_dict['hand_encoder'])
+        print('load hand_encoder')
+    if 'nimble_layer' in state_dict.keys() and hasattr(model,'nimble_layer'):
+        model.nimble_layer.load_state_dict(state_dict['nimble_layer'])
+        print('load nimble_layer')
+    if 'heatmap_attention' in state_dict.keys() and hasattr(model,'heatmap_attention'):
+        model.heatmap_attention.load_state_dict(state_dict['heatmap_attention'])
+        print('load heatmap_attention')
+    if 'rgb2hm' in state_dict.keys() and hasattr(model,'rgb2hm'):
+        model.rgb2hm.load_state_dict(state_dict['rgb2hm'])
+        print('load rgb2hm')
+    if 'hm2hand' in state_dict.keys() and hasattr(model,'hm2hand'):
+        model.hm2hand.load_state_dict(state_dict['hm2hand'])
+    if 'mesh2pose' in state_dict.keys() and hasattr(model,'mesh2pose'):
+        model.mesh2pose.load_state_dict(state_dict['mesh2pose'])
+        print('load mesh2pose')
+    
+    if 'percep_encoder' in state_dict.keys() and hasattr(model,'percep_encoder'):
+        model.percep_encoder.load_state_dict(state_dict['percep_encoder'])
+    
+    if 'texture_light_from_low' in state_dict.keys() and hasattr(model,'texture_light_from_low'):
+        model.texture_light_from_low.load_state_dict(state_dict['texture_light_from_low'])
+    if 'light_estimator' in state_dict.keys() and hasattr(model,'light_estimator'):
+        model.light_estimator.load_state_dict(state_dict['light_estimator'])
+    if 'texture_estimator' in state_dict.keys():
+        if hasattr(model,'renderer'):
+            model.renderer.load_state_dict(state_dict['renderer'])
+            print('load renderer')
+        if hasattr(model,'texture_estimator'):
+            model.texture_estimator.load_state_dict(state_dict['texture_estimator'])
+            print('load texture_estimator')
+        if hasattr(model,'pca_texture_estimator'):
+            model.pca_texture_estimator.load_state_dict(state_dict['pca_texture_estimator'])
+            print('load pca_texture_estimator')
+    if 'light_estimator' in state_dict.keys():
+        if hasattr(model,'light_estimator'):
+            model.light_estimator.load_state_dict(state_dict['light_estimator'])
+            print('load light_estimator')
+    print('loading the model from:', pretrain_path)
+    logging.info('pretrain_model: %s' %pretrain_path)
+
+    # if hasattr(model,'texture_light_from_low') and args.pretrain_texture_model is not None:
+    #     texture_state_dict = torch.load(args.pretrain_texture_model)
+    #     model.texture_light_from_low.load_state_dict(texture_state_dict['texture_light_from_low'])
+    #     print('loading the texture module from:', args.pretrain_texture_model)
+    # if hasattr(model,'light_estimator') and args.pretrain_texture_model is not None:
+    #     texture_state_dict = torch.load(args.pretrain_texture_model)
+    #     model.light_estimator.load_state_dict(texture_state_dict['light_estimator'])
+
+    #     tex_reg_state_dict = {k.replace('tex_reg.', ''): v for k, v in texture_state_dict['hand_encoder'].items() if 'tex_reg' in k}
+    #     model.hand_encoder.tex_reg.load_state_dict(tex_reg_state_dict)
+    #     print('loading the texture module from:', args.pretrain_texture_model)
+    return model
 
 
 def save_model(model,optimizer,scheduler, epoch,current_epoch, args, console=None):

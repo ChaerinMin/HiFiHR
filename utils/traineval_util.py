@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-from utils.hand_3d_model import rot_pose_beta_to_mesh
-from utils.fh_utils import Mano2Frei, RHD2Frei, HO3D2Frei, Frei2HO3D, AverageMeter
-from utils.visualize_util import draw_2d_error_curve
-import utils.visualize_util as visualize_util
-from utils.fh_utils import proj_func
-from utils.losses_util import bone_direction_loss, tsa_pose_loss#image_l1_loss, iou_loss, ChamferLoss,
+from .hand_3d_model import rot_pose_beta_to_mesh
+from .fh_utils import Mano2Frei, RHD2Frei, HO3D2Frei, Frei2HO3D, AverageMeter
+from .visualize_util import draw_2d_error_curve
+from . import visualize_util as visualize_util
+from .fh_utils import proj_func
+from .losses_util import bone_direction_loss, tsa_pose_loss#image_l1_loss, iou_loss, ChamferLoss,
 
 import time
 import json

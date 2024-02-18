@@ -108,10 +108,10 @@ def recover_root(uv_root, scale,
 class HandModel(object):
     def __init__(self, use_mean_pca=False, use_mean_pose=False):
         if use_mean_pca:
-            self.model = load_model('data/MANO_RIGHT.pkl', ncomps=6, flat_hand_mean=not use_mean_pose,
+            self.model = load_model('aseets/mano/MANO_RIGHT.pkl', ncomps=6, flat_hand_mean=not use_mean_pose,
                                     use_pca=True)
         else:
-            self.model = load_model('data/MANO_RIGHT.pkl', ncomps=45, flat_hand_mean=not use_mean_pose,
+            self.model = load_model('aseets/mano/MANO_RIGHT.pkl', ncomps=45, flat_hand_mean=not use_mean_pose,
                                     use_pca=False)
 
         self.global_trans = ch.array([0.0, 0.0, 0.3])

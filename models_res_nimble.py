@@ -19,13 +19,13 @@ from pytorch3d.renderer import (
 )
 from pytorch3d.renderer.lighting import DirectionalLights
 import pytorch3d.renderer as p3d_renderer
-from network.res_encoder import ResEncoder, HandEncoder, LightEstimator
-from network.effnet_encoder import EffiEncoder
-from utils.NIMBLE_model.myNIMBLELayer import MyNIMBLELayer
-from utils.traineval_util import Mano2Frei, trans_proj_j2d
-from utils.my_mano import MyMANOLayer
-from utils.Freihand_GNN_mano.mano_network_PCA import YTBHand
-from utils.Freihand_GNN_mano.Freihand_trainer_mano_fullsup import dense_pose_Trainer
+from .network.res_encoder import ResEncoder, HandEncoder, LightEstimator
+from .network.effnet_encoder import EffiEncoder
+from .utils.NIMBLE_model.myNIMBLELayer import MyNIMBLELayer
+from .utils.traineval_util import Mano2Frei, trans_proj_j2d
+from .utils.my_mano import MyMANOLayer
+from .utils.Freihand_GNN_mano.mano_network_PCA import YTBHand
+from .utils.Freihand_GNN_mano.Freihand_trainer_mano_fullsup import dense_pose_Trainer
 ytbHand_trainer = dense_pose_Trainer(None, None)
 
 
@@ -67,7 +67,7 @@ class Model(nn.Module):
 
         self.hand_encoder = HandEncoder(hand_model=hand_model, ncomps=self.ncomps, in_dim=self.features_dim, ifRender=ifRender, use_mean_shape=use_mean_shape)
 
-        MANO_file = os.path.join(os.path.dirname(__file__),'data/MANO_RIGHT.pkl')
+        MANO_file = 'assets/mano/MANO_RIGHT.pkl'
         dd = pickle.load(open(MANO_file, 'rb'),encoding='latin1')
         self.mano_face = Variable(torch.from_numpy(np.expand_dims(dd['f'],0).astype(np.int16)).to(device=device))
 
@@ -105,7 +105,7 @@ class Model(nn.Module):
             self.light_estimator = LightEstimator(self.low_feat_dim)
 
 
-    def forward(self, dat_name, mode_train, images, Ks=None, root_xyz=None):
+    def forward(self, dat_name, mode_train, images, Ks=None):
         if self.hand_model == 'mano_new':
             pred = self.ytbHand(images)
             outputs = {
@@ -175,10 +175,17 @@ class Model(nn.Module):
                 pred_root_xyz = outputs['nimble_joints'][:, 0, :].unsqueeze(1)
             else:
                 pred_root_xyz = outputs['nimble_joints'][:, self.root_id_nimble, :].unsqueeze(1)
+            outputs['xyz'] = outputs['nimble_joints']
             outputs['nimble_joints'] = outputs['nimble_joints'] - pred_root_xyz
 
 
         # Render image
+        # move to the root relative coord. 
+        # verts = verts - pred_root_xyz + root_xyz
+        verts_num = outputs['skin_meshes']._num_verts_per_mesh[0]
+        outputs['skin_meshes'].offset_verts_(-pred_root_xyz.repeat(1, verts_num, 1).view(verts_num*batch_size, 3))
+        root_xyz = torch.tensor([0.0142, 0.0153, 0.9144]).unsqueeze(0).unsqueeze(0).to(pred_root_xyz.device)  # hifihr assumption
+        outputs['skin_meshes'].offset_verts_(root_xyz.repeat(1, verts_num, 1).view(verts_num*batch_size, 3))
         if self.ifRender:
             # set up renderer parameters
             # k_44 = torch.eye(4).unsqueeze(0).repeat(batch_size, 1, 1)
@@ -204,13 +211,7 @@ class Model(nn.Module):
                     device=device,
                 )
                 outputs['light_params'] = None
-
-
-            # move to the root relative coord. 
-            # verts = verts - pred_root_xyz + root_xyz
-            verts_num = outputs['skin_meshes']._num_verts_per_mesh[0]
-            outputs['skin_meshes'].offset_verts_(-pred_root_xyz.repeat(1, verts_num, 1).view(verts_num*batch_size, 3))
-            outputs['skin_meshes'].offset_verts_(root_xyz.repeat(1, verts_num, 1).view(verts_num*batch_size, 3))
+            
 
             # render the image
             rendered_images = self.renderer_p3d(outputs['skin_meshes'], cameras=cameras, lights=lighting)

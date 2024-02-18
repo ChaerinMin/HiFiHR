@@ -1,6 +1,6 @@
 import torch
 
-from utils.manopth import rodrigues_layer
+from . import rodrigues_layer
 
 
 def th_posemap_axisang(pose_vectors):

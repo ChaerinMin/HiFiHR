@@ -1395,7 +1395,7 @@ class HandDataset(Dataset):
             traceback.print_exc()
             random_idx = random.randint(0, len(self))
             print("Encountered error processing sample {}, try to use a random idx {} instead".format(idx, random_idx))
-            sample = self.get_sample(random_idx, self.queries)
+            # sample = self.get_sample(random_idx, self.queries)
         return sample
 
 
@@ -1484,9 +1484,9 @@ class FreiHand:
             '''
             
         elif self.set_name == 'evaluation':
-            img_idxs = [int(imgname.split(".")[0]) for imgname in sorted(os.listdir(os.path.join(self.base_path, self.set_name, 'rgb')))]
+            self.img_idxs = [int(imgname.split(".")[0]) for imgname in sorted(os.listdir(os.path.join(self.base_path, self.set_name, 'rgb')))]
             self.prefix_template = "{:08d}"
-            prefixes = [self.prefix_template.format(idx) for idx in img_idxs]
+            prefixes = [self.prefix_template.format(idx) for idx in self.img_idxs]
             #self.open_2dj_lists = json_load('/data/FreiHand_save/evaluation/detect.json')
             self.open_2dj_lists = json_load(os.path.join(self.base_path, 'openpose/evaluation', 'detect.json'))
             self.open_2dj_list = self.open_2dj_lists[0]

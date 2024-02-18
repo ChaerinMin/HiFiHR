@@ -9,12 +9,12 @@ import sys
 
 from torch.nn import Module
 
-from utils.mano.webuser.smpl_handpca_wrapper_HAND_only import ready_arguments
-from utils.manopth import rodrigues_layer, rotproj, rot6d
-from utils.manopth.tensutils import (th_posemap_axisang, th_with_zeros, th_pack,
+from .mano.webuser.smpl_handpca_wrapper_HAND_only import ready_arguments
+from .manopth import rodrigues_layer, rotproj, rot6d
+from .manopth.tensutils import (th_posemap_axisang, th_with_zeros, th_pack,
                                subtract_flat_id, make_list)
 
-from utils.hand_3d_model import rodrigues, get_poseweights
+from .hand_3d_model import rodrigues, get_poseweights
 fdir = os.path.split(os.path.abspath(__file__))[0]
 sys.path.append(fdir)
 MANO_dir = os.path.join(fdir,'mano')
@@ -28,7 +28,7 @@ class MyMANOLayer(torch.nn.Module):
         self.keypoints_num = 16
         self.device = device
 
-        MANO_file = os.path.join(os.path.dirname(os.path.dirname(__file__)),'data/MANO_RIGHT.pkl')
+        MANO_file = os.path.join(os.path.dirname(os.path.dirname(__file__)),'aseets/mano/MANO_RIGHT.pkl')
         dd = pickle.load(open(MANO_file, 'rb'),encoding='latin1')
         self.mesh_face = Variable(torch.from_numpy(np.expand_dims(dd['f'],0).astype(np.int16)).to(device=device))
 
@@ -57,7 +57,7 @@ class MyMANOLayer(torch.nn.Module):
 class MyMANOLayer_de(torch.nn.Module):
     def __init__(self, ifRender, device, shape_ncomp=20, pose_ncomp=30, tex_ncomp=10, use_pose_pca=True):
         super(MyMANOLayer_de, self).__init__()
-        MANO_file = os.path.join(os.path.dirname(os.path.dirname(__file__)),'data/MANO_RIGHT.pkl')
+        MANO_file = os.path.join(os.path.dirname(os.path.dirname(__file__)),'aseets/mano/MANO_RIGHT.pkl')
         dd = pickle.load(open(MANO_file, 'rb'),encoding='latin1')
         self.kintree_table = dd['kintree_table']
         self.id_to_col = {self.kintree_table[1,i] : i for i in range(self.kintree_table.shape[1])} 
