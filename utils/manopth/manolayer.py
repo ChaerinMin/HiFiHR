@@ -21,7 +21,7 @@ class ManoLayer(Module):
                  flat_hand_mean=True,
                  ncomps=6,
                  side='right',
-                 mano_root='mano/models',
+                 mano_root='assets/mano',
                  use_pca=True,
                  root_rot_mode='axisang',
                  joint_rot_mode='axisang',

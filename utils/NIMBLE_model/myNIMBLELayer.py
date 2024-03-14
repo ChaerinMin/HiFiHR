@@ -247,14 +247,14 @@ class MyNIMBLELayer(torch.nn.Module):
 
         return Jtr
 
-    def forward(self, hand_params, handle_collision=True):
+    def forward(self, hand_params, handle_collision=True, with_root=True):
         """
         Takes points in R^3 and first applies relevant pose and shape blend shapes.
         Then performs skinning.
         """
         batch_size = hand_params['pose_params'].shape[0]
         if self.use_pose_pca:
-            full_pose = self.generate_full_pose(hand_params['pose_params'], normalized=True, with_root=True).view(-1, 20, 3)
+            full_pose = self.generate_full_pose(hand_params['pose_params'], normalized=True, with_root=with_root).view(-1, 20, 3)
         else:
             full_pose = hand_params['pose_params'].view(-1, 20, 3) # b, 20, 3
 
