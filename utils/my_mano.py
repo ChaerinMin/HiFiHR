@@ -28,7 +28,7 @@ class MyMANOLayer(torch.nn.Module):
         self.keypoints_num = 16
         self.device = device
 
-        MANO_file = os.path.join(os.path.dirname(os.path.dirname(__file__)),'aseets/mano/MANO_RIGHT.pkl')
+        MANO_file = "assets/mano/MANO_RIGHT.pkl"
         dd = pickle.load(open(MANO_file, 'rb'),encoding='latin1')
         self.mesh_face = Variable(torch.from_numpy(np.expand_dims(dd['f'],0).astype(np.int16)).to(device=device))
 
