@@ -7,6 +7,7 @@ from torch.autograd import Variable
 import os
 import math
 import time
+import copy 
 
 import numpy as np
 import pytorch3d
@@ -147,6 +148,11 @@ class Model(nn.Module):
         #     'rot':rot
         # }
         outputs.update(hand_params)           
+        hand_params_r = copy.deepcopy(hand_params)
+        hand_params_r['pose_params'][:, :3] = 0
+        outputs_r = self.hand_layer(hand_params_r, handle_collision=False, with_root=True)
+        outputs['mano_verts_r'] = outputs_r['mano_verts']
+        outputs['mano_joints_r'] = outputs_r['joints']
 
         # map nimble 25 joints to freihand 21 joints
         if self.hand_model == 'mano_new':
@@ -177,6 +183,9 @@ class Model(nn.Module):
                 pred_root_xyz = outputs['nimble_joints'][:, self.root_id_nimble, :].unsqueeze(1)
             outputs['xyz'] = outputs['nimble_joints']
             outputs['nimble_joints'] = outputs['nimble_joints'] - pred_root_xyz
+        mano_center = outputs['mano_joints_r'][:, 5, :].unsqueeze(1)
+        outputs['mano_verts_r'] = outputs['mano_verts_r'] - mano_center
+        outputs['mano_joints_r'] = outputs['mano_joints_r'] - mano_center
 
 
         # Render image

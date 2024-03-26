@@ -207,34 +207,6 @@ class MyNIMBLELayer(torch.nn.Module):
 
         self.tex_mean = x[0] # [:,:,:, :3]
         return x
-
-    def mano_v2j_reg(self, mano_verts):#[b,778,3]
-
-        batch_size = mano_verts.shape[0]
-        MANO_file = 'assets/mano/MANO_RIGHT.pkl'
-        dd = pickle.load(open(MANO_file, 'rb'),encoding='latin1')
-        J_regressor = Variable(torch.from_numpy(np.expand_dims(dd['J_regressor'].todense(), 0).astype(np.float32)).to(device=mano_verts.device))
-        
-        # J_reg: [1, 16, 778]
-        # [b, 3, 778] x [b, 778, 16] -> [b, 3, 16]
-        Jtr = torch.matmul(mano_verts.permute(0,2,1), J_regressor.repeat(batch_size,1,1).permute(0,2,1))
-        Jtr = Jtr.permute(0, 2, 1) # b, 16, 3
-
-        # v is of shape: b, 3 (or more) dims, 778 samples
-        # For FreiHand: add 5 joints.
-        # Jtr.insert(4,mano_verts[:,:3,320].unsqueeze(2))
-        # Jtr.insert(8,mano_verts[:,:3,443].unsqueeze(2))
-        # Jtr.insert(12,mano_verts[:,:3,672].unsqueeze(2))
-        # Jtr.insert(16,mano_verts[:,:3,555].unsqueeze(2))
-        # Jtr.insert(20,mano_verts[:,:3,744].unsqueeze(2))      
-        Jtr = torch.cat([Jtr[:,:4], mano_verts[:,320].unsqueeze(1), Jtr[:,4:]], 1)
-        Jtr = torch.cat([Jtr[:,:8], mano_verts[:,443].unsqueeze(1), Jtr[:,8:]], 1)
-        Jtr = torch.cat([Jtr[:,:12], mano_verts[:,672].unsqueeze(1), Jtr[:,12:]], 1)
-        Jtr = torch.cat([Jtr[:,:16], mano_verts[:,555].unsqueeze(1), Jtr[:,16:]], 1)
-        Jtr = torch.cat([Jtr[:,:20], mano_verts[:,744].unsqueeze(1), Jtr[:,20:]], 1)
-        
-        # Jtr = torch.cat(Jtr, 2).permute(0,2,1)
-        return Jtr
     
     def nimble_v_2_mano_j_reg(self, nimble_verts):#[b,5990,3]
 
@@ -300,7 +272,7 @@ class MyNIMBLELayer(torch.nn.Module):
         del faces
 
         skin_mano_v = self.nimble_to_mano(skin_v, is_surface=True)
-        joints = self.mano_v2j_reg(skin_mano_v)
+        joints = mano_v2j_reg(skin_mano_v)
         # joints = self.nimble_v_2_mano_j_reg(skin_v)
 
         # muscle_v = mesh_v[:,self.bone_v_sep:self.skin_v_sep,:]
@@ -468,3 +440,31 @@ class MyNIMBLELayer(torch.nn.Module):
        
         return skin_v
         
+
+def mano_v2j_reg(mano_verts):#[b,778,3]
+
+    batch_size = mano_verts.shape[0]
+    MANO_file = 'assets/mano/MANO_RIGHT.pkl'
+    dd = pickle.load(open(MANO_file, 'rb'),encoding='latin1')
+    J_regressor = Variable(torch.from_numpy(np.expand_dims(dd['J_regressor'].todense(), 0).astype(np.float32)).to(device=mano_verts.device))
+    
+    # J_reg: [1, 16, 778]
+    # [b, 3, 778] x [b, 778, 16] -> [b, 3, 16]
+    Jtr = torch.matmul(mano_verts.permute(0,2,1), J_regressor.repeat(batch_size,1,1).permute(0,2,1))
+    Jtr = Jtr.permute(0, 2, 1) # b, 16, 3
+
+    # v is of shape: b, 3 (or more) dims, 778 samples
+    # For FreiHand: add 5 joints.
+    # Jtr.insert(4,mano_verts[:,:3,320].unsqueeze(2))
+    # Jtr.insert(8,mano_verts[:,:3,443].unsqueeze(2))
+    # Jtr.insert(12,mano_verts[:,:3,672].unsqueeze(2))
+    # Jtr.insert(16,mano_verts[:,:3,555].unsqueeze(2))
+    # Jtr.insert(20,mano_verts[:,:3,744].unsqueeze(2))      
+    Jtr = torch.cat([Jtr[:,:4], mano_verts[:,320].unsqueeze(1), Jtr[:,4:]], 1)
+    Jtr = torch.cat([Jtr[:,:8], mano_verts[:,443].unsqueeze(1), Jtr[:,8:]], 1)
+    Jtr = torch.cat([Jtr[:,:12], mano_verts[:,672].unsqueeze(1), Jtr[:,12:]], 1)
+    Jtr = torch.cat([Jtr[:,:16], mano_verts[:,555].unsqueeze(1), Jtr[:,16:]], 1)
+    Jtr = torch.cat([Jtr[:,:20], mano_verts[:,744].unsqueeze(1), Jtr[:,20:]], 1)
+    
+    # Jtr = torch.cat(Jtr, 2).permute(0,2,1)
+    return Jtr
